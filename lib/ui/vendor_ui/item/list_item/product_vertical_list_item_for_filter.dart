@@ -10,8 +10,6 @@ import '../../../../../../../core/vendor/viewobject/product.dart';
 import '../../../../../../config/ps_colors.dart';
 import '../../../../config/route/route_paths.dart';
 import '../../../../core/vendor/constant/ps_constants.dart';
-import '../../../custom_ui/item/list_item/product_price_widget.dart';
-import '../../../custom_ui/item/list_item/product_shop_owner_info_widget.dart';
 import '../../common/bluemark_icon.dart';
 import '../../common/ps_ui_widget.dart';
 import '../../common/shimmer_item.dart';
@@ -36,12 +34,10 @@ class ProductVerticalListItemForFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //print("${PsConfig.ps_app_image_thumbs_url}${subCategory.defaultPhoto.imgPath}");
     animationController.forward();
     final PsValueHolder valueHolder =
         Provider.of<PsValueHolder>(context, listen: false);
-    final bool showDiscount =
-        valueHolder.isShowDiscount! && product.isDiscountedItem;
+
     return AnimatedBuilder(
       animation: animationController,
       builder: (BuildContext context, Widget? child) {
@@ -74,6 +70,7 @@ class ProductVerticalListItemForFilter extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
+                      // Large clean image
                       Stack(
                         children: <Widget>[
                           Container(
@@ -81,368 +78,137 @@ class ProductVerticalListItemForFilter extends StatelessWidget {
                             height: PsDimens.space160,
                             child: ClipRRect(
                               borderRadius:
-                                  BorderRadius.circular(PsDimens.space4),
+                                  BorderRadius.circular(PsDimens.space6),
                               child: PsNetworkImage(
                                 photoKey:
                                     '$coreTagKey${product.id}${PsConst.HERO_TAG__IMAGE}',
                                 defaultPhoto: product.defaultPhoto,
                                 boxfit: BoxFit.cover,
-                                imageAspectRation: PsConst.Aspect_Ratio_3x,
+                                imageAspectRation: PsConst.Aspect_Ratio_1x,
                                 onTap: () {
                                   onDetailClick(context);
                                 },
                               ),
                             ),
                           ),
-                          Container(
-                            alignment: Alignment.topLeft,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                if (product.isSoldOutItem)
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                        top: PsDimens.space4,
-                                        left: PsDimens.space4,
-                                        right: PsDimens.space4),
-                                    height: 25,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
+                          if (!Utils.isOwnerItem(valueHolder, product))
+                            Positioned(
+                                top: PsDimens.space6,
+                                right: PsDimens.space6,
+                                child: GestureDetector(
+                                    onTap: () {
+                                      onDetailClick(context);
+                                    },
+                                    child: Container(
+                                        padding: const EdgeInsets.all(
                                             PsDimens.space4),
-                                        color: Theme.of(context).primaryColor),
-                                    child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: PsDimens.space4,
-                                            left: PsDimens.space4,
-                                            right: PsDimens.space4),
-                                        child: Text('dashboard__sold_out'.tr,
-                                            textAlign: TextAlign.start,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium!
-                                                .copyWith(
-                                                    color: PsColors.achromatic50))),
-                                  ),
-                                if (product.paidStatus ==
-                                    PsConst.PAID_AD_PROGRESS)
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                        top: PsDimens.space4,
-                                        left: PsDimens.space4,
-                                        right: PsDimens.space4),
-                                    height: 25,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                            PsDimens.space4),
-                                        color: PsColors.success400),
-                                    child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: PsDimens.space4,
-                                            left: PsDimens.space4,
-                                            right: PsDimens.space4),
-                                        child: Text('dashboard__is_featured'.tr,
-                                            textAlign: TextAlign.start,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium!
-                                                .copyWith(
-                                                    color: PsColors.achromatic50))),
-                                  ),
-                                if (showDiscount)
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                        top: PsDimens.space4,
-                                        left: PsDimens.space4,
-                                        right: PsDimens.space4),
-                                    height: 25,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                            PsDimens.space4),
-                                        color: PsColors.error500),
-                                    child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: PsDimens.space4,
-                                            left: PsDimens.space4,
-                                            right: PsDimens.space4),
-                                        child: Text(
-                                            '${product.discountRate}% ${'dashboard__is_discount'.tr}',
-                                            textAlign: TextAlign.start,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium!
-                                                .copyWith(
-                                                    color: PsColors.achromatic50))),
-                                  ),
-                              ],
-                            ),
-                          )
+                                        decoration: BoxDecoration(
+                                            color: PsColors.achromatic50,
+                                            border: Border.all(
+                                                color: PsColors.achromatic50),
+                                            shape: BoxShape.circle),
+                                        child: product.isFavourited ==
+                                                    PsConst.ZERO ||
+                                                Utils.isLoginUserEmpty(
+                                                    valueHolder)
+                                            ? Icon(Icons.favorite_border,
+                                                color: PsColors.text500,
+                                                size: 20)
+                                            : Icon(Icons.favorite,
+                                                color: Theme.of(context)
+                                                    .primaryColor,
+                                                size: 20)))),
                         ],
                       ),
-                      Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: <Widget>[
-                            Expanded(
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  Flexible(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: PsDimens.space4,
-                                          left: PsDimens.space8,
-                                          right: PsDimens.space8),
-                                      child: Text(
-                                        product.title!,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (!Utils.isOwnerItem(valueHolder, product))
-                              Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: PsDimens.space4,
-                                      left: PsDimens.space8,
-                                      right: PsDimens.space8),
-                                  child: GestureDetector(
-                                      onTap: () {
-                                        onDetailClick(context);
-                                      },
-                                      child: Container(
-                                          padding: const EdgeInsets.all(
-                                              PsDimens.space4),
-                                          decoration: BoxDecoration(
-                                              color: PsColors.achromatic50,
-                                              border: Border.all(
-                                                  color: PsColors.achromatic50),
-                                              shape: BoxShape.circle),
-                                          child: product.isFavourited ==
-                                                      PsConst.ZERO ||
-                                                  Utils.isLoginUserEmpty(
-                                                      valueHolder)
-                                              ? Icon(Icons.favorite_border,
-                                                  color: PsColors.text500,
-                                                  size: 20)
-                                              : Icon(Icons.favorite,
-                                                  color: Theme.of(context).primaryColor,
-                                                  size: 20)))),
-                          ]),
+                      // Price + seller + condition only
                       Container(
                         padding: const EdgeInsets.only(
                             left: PsDimens.space8,
                             right: PsDimens.space8,
-                            top: PsDimens.space4,
-                            bottom: PsDimens.space4),
+                            top: PsDimens.space8,
+                            bottom: PsDimens.space8),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                              CustomProductPriceWidget(
-                              product: product,
-                              tagKey: coreTagKey!,
-                            ),
-                            // Row(
-                            //   children: <Widget>[
-                            //     Column(
-                            //       crossAxisAlignment: CrossAxisAlignment.start,
-                            //       children: <Widget>[
-                            //         PsHero(
-                            //           tag:
-                            //               '$coreTagKey${product.id}$PsConst.HERO_TAG__UNIT_PRICE',
-                            //           flightShuttleBuilder:
-                            //               Utils.flightShuttleBuilder,
-                            //           child: Material(
-                            //               type: MaterialType.transparency,
-                            //               child: Text(
-                            //                 !showDiscount
-                            //                     ? product.originalPrice !=
-                            //                                 '0' &&
-                            //                             product.originalPrice !=
-                            //                                 ''
-                            //                         ? '${product.itemCurrency!.currencySymbol}${Utils.getPriceFormat(product.originalPrice!, valueHolder.priceFormat!)}'
-                            //                         : 'item_price_free'.tr
-                            //                     : '${product.itemCurrency!.currencySymbol}${Utils.getPriceFormat(product.currentPrice!, valueHolder.priceFormat!)}',
-                            //                 textAlign: TextAlign.start,
-                            //                 style: Theme.of(context)
-                            //                     .textTheme
-                            //                     .bodyMedium!
-                            //                     .copyWith(
-                            //                         fontSize: 14, color: Theme.of(context).primaryColor),
-                            //               )),
-                            //         ),
-                            //         Visibility(
-                            //             maintainSize: true,
-                            //             maintainAnimation: true,
-                            //             maintainState: true,
-                            //             visible: showDiscount,
-                            //             child: Row(
-                            //               children: <Widget>[
-                            //                 Padding(
-                            //                   padding: const EdgeInsets.only(
-                            //                       bottom: PsDimens.space4),
-                            //                   child: Text(
-                            //                     '${product.itemCurrency!.currencySymbol}${Utils.getPriceFormat(product.originalPrice!, valueHolder.priceFormat!)}',
-                            //                     textAlign: TextAlign.start,
-                            //                     style: Theme.of(context)
-                            //                         .textTheme
-                            //                         .bodyMedium!
-                            //                         .copyWith(
-                            //                             color: Utils.isLightMode(context) ? PsColors.text600 : PsColors.text300,
-                            //                             decoration:
-                            //                                 TextDecoration
-                            //                                     .lineThrough,
-                            //                             fontSize: 12),
-                            //                   ),
-                            //                 ),
-                            //               ],
-                            //             ))
-                            //       ],
-                            //     ),
-                            //   ],
-                            // ),
-                            Row(
-                              children: <Widget>[
-                                Expanded(
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.location_on_outlined,
-                                        size: 12,
-                                        color: Utils.isLightMode(context) ? PsColors.text500 : PsColors.text400,
-                                      ),
-                                      Expanded(
-                                          child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: PsDimens.space4,
-                                                  right: PsDimens.space4),
-                                              child: Text(
-                                                  valueHolder.isSubLocation ==
-                                                          PsConst.ONE
-                                                      ? (product.itemLocationTownship!
-                                                                      .townshipName !=
-                                                                  '' &&
-                                                              product.itemLocationTownship!
-                                                                      .townshipName !=
-                                                                  null)
-                                                          ? // check optional township is empty
-                                                          '${product.itemLocationTownship!.townshipName}'
-                                                          : '${product.itemLocation!.name}'
-                                                      : '${product.itemLocation!.name}',
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  textAlign: TextAlign.start,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall!
-                                                      .copyWith(
-                                                          fontSize: 12,
-                                                          color: Utils.isLightMode(context) ? PsColors.text500 : PsColors.text400,)))),
-                                    ],
+                            Text(
+                              _getDisplayPrice(valueHolder),
+                              textAlign: TextAlign.start,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).primaryColor,
                                   ),
-                                ),
-                              ],
                             ),
-                            if (valueHolder.isShowOwnerInfo! &&
-                                product.vendorId != '' &&
-                                valueHolder.vendorFeatureSetting == PsConst.ONE)
-                              CustomProductShopOwnerInfoWidget(
-                                tagKey: coreTagKey ?? '',
-                                product: product,
-                              )
-                            else if (valueHolder.isShowOwnerInfo!)
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  left: PsDimens.space4,
-                                  top: PsDimens.space8,
-                                  right: PsDimens.space4,
-                                ),
-                                child: Row(
-                                  children: <Widget>[
-                                    Stack(children: <Widget>[
-                                      Container(
-                                        child: SizedBox(
-                                          width: PsDimens.space40,
-                                          height: PsDimens.space40,
-                                          child: PsNetworkCircleImageForUser(
-                                            photoKey: '',
-                                            imagePath:
-                                                product.user?.userCoverPhoto,
-                                            boxfit: BoxFit.cover,
-                                            onTap: () {
-                                              onDetailClick(context);
-                                            },
-                                          ),
-                                        ),
+                            const SizedBox(height: PsDimens.space8),
+                            if (valueHolder.isShowOwnerInfo!)
+                              Row(
+                                children: <Widget>[
+                                  Stack(children: <Widget>[
+                                    SizedBox(
+                                      width: PsDimens.space40,
+                                      height: PsDimens.space40,
+                                      child: PsNetworkCircleImageForUser(
+                                        photoKey: '',
+                                        imagePath:
+                                            product.user?.userCoverPhoto,
+                                        boxfit: BoxFit.cover,
+                                        onTap: () {
+                                          onDetailClick(context);
+                                        },
                                       ),
-                                      if (product.user!.isVefifiedBlueMarkUser)
-                                        const Positioned(
-                                          right: -1,
-                                          bottom: -1,
-                                          child: BluemarkIcon(),
+                                    ),
+                                    if (product.user != null &&
+                                        product.user!.isVefifiedBlueMarkUser)
+                                      const Positioned(
+                                        right: -1,
+                                        bottom: -1,
+                                        child: BluemarkIcon(),
+                                      ),
+                                  ]),
+                                  const SizedBox(width: PsDimens.space8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          product.user?.name == null ||
+                                                  product.user?.name == ''
+                                              ? 'default__user_name'.tr
+                                              : '${product.user?.name}',
+                                          textAlign: TextAlign.start,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge,
                                         ),
-                                    ]),
-                                    const SizedBox(width: PsDimens.space8),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                            bottom: PsDimens.space8,
-                                            top: PsDimens.space8),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: <Widget>[
-                                                Flexible(
-                                                  child: Text(
-                                                      product.user?.name ==
-                                                              ''
-                                                          ? 'default__user_name'
-                                                              .tr
-                                                          : '${product.user?.name}',
-                                                      textAlign:
-                                                          TextAlign.start,
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .bodyLarge),
+                                        if (_getItemCondition().isNotEmpty)
+                                          Text(
+                                            _getItemCondition(),
+                                            textAlign: TextAlign.start,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall!
+                                                .copyWith(
+                                                  color: Utils.isLightMode(
+                                                          context)
+                                                      ? PsColors.text500
+                                                      : PsColors.text400,
                                                 ),
-                                              ],
-                                            ),
-                                            Text('${product.addedDateStr}',
-                                                textAlign: TextAlign.start,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .bodySmall!.copyWith(color: Utils.isLightMode(context) ? PsColors.text500 : PsColors.text400))
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                            const SizedBox(
-                              height: PsDimens.space8,
-                            ),
                           ],
                         ),
                       ),
@@ -454,13 +220,33 @@ class ProductVerticalListItemForFilter extends StatelessWidget {
     );
   }
 
+  String _getDisplayPrice(PsValueHolder valueHolder) {
+    final bool isLoginUserEmpty = Utils.isLoginUserEmpty(valueHolder);
+    if (valueHolder.hidePriceSetting == PsConst.ONE && isLoginUserEmpty) {
+      return '${product.itemCurrency?.currencySymbol ?? ''}\t*****';
+    }
+    final String? price = (product.isDiscountedItem == true &&
+            product.currentPrice != null &&
+            product.currentPrice != '')
+        ? product.currentPrice
+        : product.originalPrice;
+    if (price == null || price == '' || price == '0') {
+      return 'item_price_free'.tr;
+    }
+    return '${product.itemCurrency?.currencySymbol ?? ''} ${Utils.getPriceFormat(price, valueHolder.priceFormat!)}';
+  }
+
+  String _getItemCondition() {
+    const String conditionCoreKeyId = 'ps-itm00004';
+    return product.selectedValuesOfProductRelation(conditionCoreKeyId).trim();
+  }
+
   Future<void> onDetailClick(BuildContext context) async {
-   if (!isLoading) {
-      print(product.defaultPhoto!.imgPath);
+    if (!isLoading) {
       final ProductDetailIntentHolder holder = ProductDetailIntentHolder(
-      productId: product.id,
-      heroTagImage: coreTagKey! + product.id! + PsConst.HERO_TAG__IMAGE,
-      heroTagTitle: coreTagKey! + product.id! + PsConst.HERO_TAG__TITLE);
+          productId: product.id,
+          heroTagImage: coreTagKey! + product.id! + PsConst.HERO_TAG__IMAGE,
+          heroTagTitle: coreTagKey! + product.id! + PsConst.HERO_TAG__TITLE);
       Navigator.pushNamed(context, RoutePaths.productDetail, arguments: holder);
     }
     if (onTap != null) {
