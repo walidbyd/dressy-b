@@ -1,0 +1,199 @@
+pluginManagement {
+
+
+    def flutterSdkPath = {
+        def properties = new Properties()
+        file("local.properties").withInputStream { properties.load(it) }
+        def flutterSdkPath = properties.getProperty("flutter.sdk")
+        assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
+        return flutterSdkPath
+    }()
+
+    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id "dev.flutter.flutter-plugin-loader" version "1.0.0"
+    id "com.android.application" version "8.11.1" apply false
+    id "org.jetbrains.kotlin.android" version "2.2.20" apply false
+    id "com.google.gms.google-services" version "4.4.1" apply false
+    id "com.google.firebase.crashlytics" version "2.9.0" apply false
+}
+
+include ':app'
+// include ':app_tracking_transparency'
+// include ':camera'
+// include ':camera_avfoundation'
+// include ':camera_web'
+// include ':connectivity_for_web'
+// include ':connectivity_macos'
+// include ':facebook_auth_desktop'
+// include ':file_selector_linux'
+// include ':file_selector_macos'
+// include ':file_selector_windows'
+// include ':firebase_app_check_web'
+// include ':firebase_auth_web'
+// include ':firebase_core_web'
+// include ':firebase_database_web'
+// include ':firebase_messaging_web'
+// include ':flutter_facebook_auth_web'
+// include ':flutter_secure_storage_linux'
+// include ':flutter_secure_storage_macos'
+// include ':flutter_secure_storage_web'
+// include ':flutter_secure_storage_windows'
+// include ':flutter_stripe'
+// include ':geocoding'
+// include ':geocoding_ios'
+// include ':geolocator'
+// include ':geolocator_apple'
+// include ':geolocator_web'
+// include ':geolocator_windows'
+// include ':google_maps_flutter'
+// include ':google_maps_flutter_ios'
+// include ':google_maps_flutter_web'
+// include ':google_sign_in'
+// include ':google_sign_in_ios'
+// include ':google_sign_in_web'
+// include ':image_picker'
+// include ':image_picker_for_web'
+// include ':image_picker_ios'
+// include ':image_picker_linux'
+// include ':image_picker_macos'
+// include ':image_picker_windows'
+// include ':in_app_purchase'
+// include ':in_app_purchase_storekit'
+// include ':path_provider'
+// include ':path_provider_foundation'
+// include ':path_provider_linux'
+// include ':path_provider_windows'
+// include ':permission_handler'
+// include ':permission_handler_apple'
+// include ':permission_handler_html'
+// include ':permission_handler_windows'
+// include ':platform_device_id_linux'
+// include ':platform_device_id_macos'
+// include ':platform_device_id_web'
+// include ':platform_device_id_windows'
+// include ':shared_preferences'
+// include ':shared_preferences_foundation'
+// include ':shared_preferences_linux'
+// include ':shared_preferences_web'
+// include ':shared_preferences_windows'
+// include ':stripe_ios'
+// include ':the_apple_sign_in'
+// include ':url_launcher'
+// include ':url_launcher_ios'
+// include ':url_launcher_linux'
+// include ':url_launcher_macos'
+// include ':url_launcher_web'
+// include ':url_launcher_windows'
+// include ':video_player'
+// include ':video_player_avfoundation'
+// include ':video_player_web'
+// include ':webview_flutter'
+// include ':webview_flutter_wkwebview'
+// include ":camera_web"
+// include ":facebook_auth_desktop"
+// include ":file_selector_linux"
+// include ":file_selector_macos"
+// include ":file_selector_windows"
+// include ":firebase_app_check_web"
+// include ":firebase_auth_web"
+// include ":firebase_core_web"
+// include ":firebase_database_web"
+// include ":firebase_messaging_web"
+// include ":flutter_facebook_auth_web"
+// include ":flutter_secure_storage_linux"
+// include ":flutter_secure_storage_macos"
+// include ":flutter_secure_storage_web"
+// include ":flutter_secure_storage_windows"
+// include ":flutter_stripe"
+// include ":geocoding"
+// include ":geocoding_ios"
+// include ":geolocator"
+// include ":geolocator_apple"
+// include ":geolocator_web"
+// include ":geolocator_windows"
+// include ":google_maps_flutter"
+// include ":google_maps_flutter_ios"
+// include ":google_maps_flutter_web"
+// include ":google_sign_in"
+// include ":google_sign_in_ios"
+// include ":google_sign_in_web"
+// include ":image_picker"
+// include ":image_picker_for_web"
+// include ":image_picker_ios"
+// include ":image_picker_linux"
+// include ":image_picker_macos"
+// include ":image_picker_windows"
+// include ":in_app_purchase"
+// include ":in_app_purchase_storekit"
+// include ":path_provider"
+// include ":path_provider_foundation"
+// include ":path_provider_linux"
+// include ":path_provider_windows"
+// include ":permission_handler"
+// include ":permission_handler_apple"
+// include ":permission_handler_html"
+// include ":permission_handler_windows"
+// include ":platform_device_id_linux"
+// include ":platform_device_id_macos"
+// include ":platform_device_id_web"
+// include ":platform_device_id_windows"
+// include ":shared_preferences"
+// include ":shared_preferences_foundation"
+// include ":shared_preferences_linux"
+// include ":shared_preferences_web"
+// include ":shared_preferences_windows"
+// include ":stripe_ios"
+// include ":the_apple_sign_in"
+// include ":url_launcher"
+// include ":url_launcher_ios"
+// include ":url_launcher_linux"
+// include ":url_launcher_macos"
+// include ":url_launcher_web"
+// include ":url_launcher_windows"
+// include ":video_player"
+// include ":video_player_avfoundation"
+// include ":video_player_web"
+// include ":webview_flutter"
+// include ":webview_flutter_wkwebview"
+// include ":flutter_inappwebview"
+// include ":app_links_linux"
+// include ":app_links_web"
+// include ":flutter_image_compress"
+// include ":flutter_image_compress_macos"
+// include ":flutter_image_compress_web"
+// include ":flutter_image_compress_ohos"
+// include ":sign_in_with_apple_web"
+// include ":gtk"
+// include ":sqflite"
+// include ":sqflite_darwin"
+
+// include "::flutter_inappwebview_ios"
+// include "::flutter_inappwebview_macos"
+// include "::flutter_inappwebview_web"
+// include "::flutter_inappwebview_windows"
+
+
+
+
+// def flutterProjectRoot = rootProject.projectDir.parentFile.toPath()
+
+// def plugins = new Properties()
+// def pluginsFile = new File(flutterProjectRoot.toFile(), '.flutter-plugins')
+// if (pluginsFile.exists()) {
+//     pluginsFile.withReader('UTF-8') { reader -> plugins.load(reader) }
+// }
+
+// plugins.each { name, path ->
+//     def pluginDirectory = flutterProjectRoot.resolve(path).resolve('android').toFile()
+//     include ":$name"
+//     project(":$name").projectDir = pluginDirectory
+// }
