@@ -77,14 +77,12 @@ class _IntroSliderViewState extends State<IntroSliderView> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: <Widget>[
-                    // Full-screen image
                     Image.asset(
                       pictureList[currentIndex],
                       fit: BoxFit.cover,
                       width: double.infinity,
                       height: double.infinity,
                     ),
-                    // Dark gradient at bottom for readable text
                     Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -99,12 +97,12 @@ class _IntroSliderViewState extends State<IntroSliderView> {
                         ),
                       ),
                     ),
-                    // Skip (Passer)
+                    // Passer → home with ALL locations
                     SafeArea(
                       child: Align(
                         alignment: Alignment.topRight,
                         child: TextButton(
-                          onPressed: () => _goNext(provider),
+                          onPressed: () => _onSkip(provider),
                           child: Text(
                             'intro_slider_skip'.tr,
                             style: const TextStyle(
@@ -116,7 +114,6 @@ class _IntroSliderViewState extends State<IntroSliderView> {
                         ),
                       ),
                     ),
-                    // Bottom content
                     SafeArea(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -145,14 +142,13 @@ class _IntroSliderViewState extends State<IntroSliderView> {
                               ),
                             ),
                             const SizedBox(height: PsDimens.space24),
-                            // Dots
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: List<Widget>.generate(
                                 sliderPageCount,
-                                    (int i) => Container(
+                                (int i) => Container(
                                   margin:
-                                  const EdgeInsets.symmetric(horizontal: 4),
+                                      const EdgeInsets.symmetric(horizontal: 4),
                                   width: i == currentIndex ? 20 : 8,
                                   height: 8,
                                   decoration: BoxDecoration(
@@ -165,15 +161,12 @@ class _IntroSliderViewState extends State<IntroSliderView> {
                               ),
                             ),
                             const SizedBox(height: PsDimens.space24),
-                            // Sign up button
+                            // Sign up
                             SizedBox(
                               width: double.infinity,
                               height: 52,
                               child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                      context, RoutePaths.user_register_container);
-                                },
+                                onPressed: () => _onRegister(provider),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF4CD4A0),
                                   foregroundColor: Colors.white,
@@ -183,7 +176,7 @@ class _IntroSliderViewState extends State<IntroSliderView> {
                                   ),
                                 ),
                                 child: Text(
-                                  'login__sign_up'.tr, // or custom key
+                                  'login__sign_up'.tr,
                                   style: const TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w600,
@@ -192,7 +185,7 @@ class _IntroSliderViewState extends State<IntroSliderView> {
                               ),
                             ),
                             const SizedBox(height: PsDimens.space16),
-                            // Already have account → Login
+                            // Login
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
@@ -205,10 +198,7 @@ class _IntroSliderViewState extends State<IntroSliderView> {
                                 ),
                                 const SizedBox(width: 4),
                                 GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                        context, RoutePaths.login_container);
-                                  },
+                                  onTap: () => _onLogin(provider),
                                   child: Text(
                                     'login__sign_in'.tr,
                                     style: const TextStyle(
@@ -237,14 +227,72 @@ class _IntroSliderViewState extends State<IntroSliderView> {
     );
   }
 
-  Future<void> _goNext(UserProvider provider) async {
+  /// Mark onboarding done so login/register never return here
+  Future<void> _markIntroDone(UserProvider provider) async {
+    await provider.replaceIsToShowIntroSlider(false);
+  }
+
+  /// Passer → intro done + location ALL + home (products show)
+  Future<void> _onSkip(UserProvider provider) async {
     if (widget.fromSettingSlider) {
       Navigator.pop(context);
       return;
     }
-    // Mark intro as seen (same as original explore/skip logic)
-    await provider.replaceIsToShowIntroSlider(false);
+    await _markIntroDone(provider);
+    await _setLocationAll(provider);
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, RoutePaths.home);
+  }
+
+  /// Login: end onboarding first, then login, then city or home
+  Future<void> _onLogin(UserProvider provider) async {
+    await _markIntroDone(provider);
+    if (!mounted) return;
+    await Navigator.pushNamed(context, RoutePaths.login_container);
+    if (!mounted) return;
+    await _afterAuth(provider);
+  }
+
+  /// Register: same as login
+  Future<void> _onRegister(UserProvider provider) async {
+    await _markIntroDone(provider);
+    if (!mounted) return;
+    await Navigator.pushNamed(context, RoutePaths.user_register_container);
+    if (!mounted) return;
+    await _afterAuth(provider);
+  }
+
+  /// After login/register: go to city picker if no location, else home
+  Future<void> _afterAuth(UserProvider provider) async {
+    final PsValueHolder holder =
+        Provider.of<PsValueHolder>(context, listen: false);
+
+    // Already has a city saved
+    if (holder.locationId != null && holder.locationId != '') {
+      Navigator.pushReplacementNamed(context, RoutePaths.home);
+      return;
+    }
+
+    // Option A (recommended): open select city
+    Navigator.pushReplacementNamed(context, RoutePaths.itemLocationList);
+
+    // Option B — if you prefer ALL by default instead of city screen,
+    // comment the line above and use:
+    // await _setLocationAll(provider);
+    // if (!mounted) return;
+    // Navigator.pushReplacementNamed(context, RoutePaths.home);
+  }
+
+  /// Same as template "All" location (products from every city)
+  Future<void> _setLocationAll(UserProvider provider) async {
+    final PsValueHolder holder =
+        Provider.of<PsValueHolder>(context, listen: false);
+    final String allLabel = 'product_list__category_all'.tr;
+    final String lat = holder.defaultlocationLat ?? '0';
+    final String lng = holder.defaultlocationLng ?? '0';
+
+    await provider.replaceItemLocationData('', allLabel, lat, lng);
+    await provider.replaceItemLocationTownshipData(
+        '', '', allLabel, lat, lng);
   }
 }
